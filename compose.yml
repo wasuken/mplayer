@@ -1,0 +1,10 @@
+services:
+  flutter:
+    build: .
+    volumes:
+      - .:/app
+      - flutter-cache:/root/.pub-cache
+    network_mode: host  # エミュレータとの通信用
+
+volumes:
+  flutter-cache:
