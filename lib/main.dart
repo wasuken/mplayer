@@ -32,10 +32,11 @@ class MusicPlayerScreen extends StatefulWidget {
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   final AudioPlayer audioPlayer = AudioPlayer();
   String? currentFile;
+  String? currentOriginalFile;
   bool isPlaying = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
-  final List<PlayHistory> playHistory = [];
+  final Set<PlayHistory> playHistory = {};
 
   @override
   void initState() {
@@ -65,6 +66,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
         setState(() {
             currentFile = result.files.single.path;
+            currentOriginalFile = result.files.single.name;
             isPlaying = false;
         });
 
@@ -75,8 +77,10 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         });
         playHistory.add(PlayHistory(
             filePath: currentFile!,
+            originalFilePath: currentOriginalFile!,
             playedAt: DateTime.now(),
         ));
+        print(playHistory.map((hist) => hist.filePath));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -195,8 +199,19 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
 // 履歴を保存するためのクラス
 class PlayHistory {
+  final String originalFilePath;
   final String filePath;
   final DateTime playedAt;
 
-  PlayHistory({required this.filePath, required this.playedAt});
+  PlayHistory({required this.filePath, required this.playedAt, required this.originalFilePath});
+
+  @override
+  bool operator ==(Object other) =>
+  identical(this, other) ||
+  other is PlayHistory &&
+  runtimeType == other.runtimeType &&
+  originalFilePath == other.originalFilePath;
+
+  @override
+  int get hashCode => originalFilePath.hashCode;
 }
