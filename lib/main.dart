@@ -35,6 +35,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   bool isPlaying = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
+  final List<PlayHistory> playHistory = [];
 
   @override
   void initState() {
@@ -42,12 +43,12 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
     audioPlayer.onPositionChanged.listen((updatedPosition) {
         setState(() {
-          position = updatedPosition;
+            position = updatedPosition;
         });
     });
     audioPlayer.onDurationChanged.listen((updatedDuration) {
         setState(() {
-          duration = updatedDuration;
+            duration = updatedDuration;
         });
     });
   }
@@ -63,15 +64,19 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         await audioPlayer.stop();
 
         setState(() {
-          currentFile = result.files.single.path;
-          isPlaying = false;
+            currentFile = result.files.single.path;
+            isPlaying = false;
         });
 
         // 新しく選択した曲を再生
         await audioPlayer.play(DeviceFileSource(currentFile!));
         setState(() {
-          isPlaying = true;
+            isPlaying = true;
         });
+        playHistory.add(PlayHistory(
+            filePath: currentFile!,
+            playedAt: DateTime.now(),
+        ));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +95,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         await audioPlayer.resume();
       }
       setState(() {
-        isPlaying = !isPlaying;
+          isPlaying = !isPlaying;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,10 +127,20 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: ListView(
+                children: playHistory.map((hist) =>
+                  ListTile(
+                    title: Text(hist.filePath.split('/').last),
+                  )
+                ).toList()
+              ),
+            ),
             Text(
               currentFile != null
-                ? 'Currently playing: ${currentFile!.split('/').last}'
-                : 'No file selected',
+              ? 'Currently playing: ${currentFile!.split('/').last}'
+              : 'No file selected',
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
@@ -164,11 +179,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 ),
                 const SizedBox(width: 20),
                 if (currentFile != null)
-                  ElevatedButton.icon(
-                    onPressed: togglePlayPause,
-                    icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                    label: Text(isPlaying ? 'Pause' : 'Play'),
-                  ),
+                ElevatedButton.icon(
+                  onPressed: togglePlayPause,
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                  label: Text(isPlaying ? 'Pause' : 'Play'),
+                ),
               ],
             ),
           ],
@@ -176,4 +191,12 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
       ),
     );
   }
+}
+
+// 履歴を保存するためのクラス
+class PlayHistory {
+  final String filePath;
+  final DateTime playedAt;
+
+  PlayHistory({required this.filePath, required this.playedAt});
 }
