@@ -15,3 +15,6 @@ shell:
 clean:
 	docker-compose down -v
 	rm -rf build/
+
+fmt:
+	dart format ./**/*.dart

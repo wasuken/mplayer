@@ -110,7 +110,18 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            PlayHistoryList(playHistory: playHistory),
+            PlayHistoryList(playHistory: playHistory, onHistoryTap: (history) async {
+                await audioPlayer.stop();
+                setState(() {
+                  currentFile = history.filePath;
+                  currentOriginalFile = history.originalFilePath;
+                  isPlaying = false;
+                });
+                await audioPlayer.play(DeviceFileSource(currentFile!));
+                setState(() {
+                  isPlaying = true;
+                });
+            }),
             Text(
               currentFile != null
                   ? 'Currently playing: ${currentFile!.split('/').last}'
