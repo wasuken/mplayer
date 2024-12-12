@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/music_player_screen.dart';
 
+import 'common/base_layout.dart';
+
 void main() {
   runApp(const MyApp());
 }

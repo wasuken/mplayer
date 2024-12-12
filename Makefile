@@ -17,4 +17,4 @@ clean:
 	rm -rf build/
 
 fmt:
-	dart format ./**/*.dart
+	dart format ./lib/**/*.dart
